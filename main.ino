@@ -1,5 +1,5 @@
 #include <ESP8266WiFi.h>
-#include <ESP8266Ping.h>
+#include <ESP8266Ping.h>                  //include library
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
