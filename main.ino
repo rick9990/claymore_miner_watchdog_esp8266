@@ -3,15 +3,15 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 
-const char* ssid     = "A_das_WiFi";
-const char* password = "rick8620";
+const char* ssid     = "your_wifi_ssid";        // wifi credentials
+const char* password = "your_wifi_pass";
 
-const char host[] = "192.168.0.103";
-const char* remote_host = "www.google.com";
+const char host[] = "192.168.0.103";            // miner ip
+const char* remote_host = "www.google.com";     // To check internet connection is ok
 
 String data = "";   // String with json data
 float temp = 0.0;
-int pin = D2;
+int pin = D2;      //relay pin
 int restcnt = 1;
 int check = 1;
 WiFiClient client;
@@ -62,7 +62,7 @@ void loop() {
     else {      
             if(restcnt <=3){
             Serial.println("ping Error :(");
-            restart();
+            restart();                               // if ping error it will restart 
             restcnt++;
             return;
             } else{ 
@@ -107,7 +107,7 @@ void httpRequest() {
     return;
   }
 
-  Serial.print("Requesting miner: ");
+  Serial.print("Requesting miner: ");               // claymore JSON request..
   // This will send the request to the server
   client.print(String {"{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"miner_getstat1\"}"} + " HTTP/1.1\r\n");
   client.print("Host: 192.168.0.103\r\n");
@@ -131,7 +131,7 @@ void httpRequest() {
 */
     void parseJSON(char json[])  {
       StaticJsonBuffer<200> jsonBuffer;
-    Serial.print(json);
+    Serial.print(json);                              // print reply from claymore 
     Serial.println();
       JsonObject& root = jsonBuffer.parseObject(json);
     
@@ -144,11 +144,11 @@ void httpRequest() {
   //double temp = root["temp"];
   //Serial.print(data);
   if(data[0]!= NULL){
-     int i,j,n=0;
+     int i,j,n=0;                          //storing data to an string array
      String mystrarry[20];
      for(i=0;data[i]!='\0';){
       if(data[i]=='"'){
-          for(j=i+1;data[j]!='"';j++){
+          for(j=i+1;data[j]!='"';j++){ 
          mystrarry[n]+= data[j];
          //Serial.print(data[j]);
            } 
@@ -165,7 +165,7 @@ void httpRequest() {
      char index3[20];
      String algo ;
       (mystrarry[3]).toCharArray(index3,20);
-       //Serial.println(index3[0]);
+       //Serial.println(index3[0]);                //geting cryptocurrency name/algo
      for(i=0;index3[i]!= NULL;i++){
       if(isAlpha(index3[i])){
         algo+=index3[i];
@@ -174,7 +174,7 @@ void httpRequest() {
 
      char index5[20];
      char  hsrt[2] ;
-     (mystrarry[5]).toCharArray(index5,20);
+     (mystrarry[5]).toCharArray(index5,20);       //getting hashrate
      for(i=0;index5[i]!= ';';i++){
       hsrt[i]=index5[i];
       }
@@ -185,7 +185,7 @@ void httpRequest() {
      if(algo=="ETH"){ 
           if(hsrtint<=123000 ){
              if(check ==3){
-                Serial.println("low hash rate restarting...");
+                Serial.println("low hash rate restarting...");      //working with data for Ethereum 
                 check=1;
                 restart();
                 return;
@@ -202,7 +202,7 @@ void httpRequest() {
         if(algo=="XMR"){ 
                   if(hsrtint<=2800){
                      if(check ==3){
-                        Serial.println("low hash rate restarting...");
+                        Serial.println("low hash rate restarting...");      //working with data for Monero
                         check=1;
                         restart();
                         return;
@@ -219,7 +219,7 @@ void httpRequest() {
                if(algo=="ZEC"){ 
                       if(hsrtint<=1200){
                          if(check ==3){
-                            Serial.println("low hash rate restarting...");
+                            Serial.println("low hash rate restarting...");        //working with data for Zcash
                             check=1;
                             restart();
                             return;
@@ -240,7 +240,7 @@ void httpRequest() {
   void restart(){
       digitalWrite(pin, LOW);
       Serial.println("relay on!");
-      delay(2000);
+      delay(2000);                         //restart function
       digitalWrite(pin, HIGH);
       Serial.println("relay off!");
       delay(90000);
